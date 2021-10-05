@@ -1,6 +1,6 @@
-# opensafely202109
+# PSA2021 (formerly opensafely202109)
 
-This is the code and configuration for opensafely202109.
+This is the code and configuration for PSA2021 (formerly opensafely202109). In this project we will tabulate the evolution of the number of Prostate Specific Antigen tests one year before and throughout the COVID-19 pandemic (period 1/4/2019 to 30/6/2021), on a monthly basis. On a second phase we will analyse this by different stata/grouping of the data (e.g. different age categories).
 
 You can run this project via [Gitpod](https://gitpod.io) in a web browser by clicking on this badge: [![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-908a85?logo=gitpod)](https://gitpod.io/#https://github.com/PedroOliveira28/opensafely202109)
 
