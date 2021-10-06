@@ -10,16 +10,18 @@ from cohortextractor import (
     StudyDefinition,
     codelist,
     codelist_from_csv,
+    #Not sure if the above is needed or at the correct place when you use codelist.py
     patients,
      '''Other programs/options that could be added
      combine_codelists,
     filter_codes_by_category,'''
 )
 
-'''Complete when codelist is published
-from codelists import
+from codelists import *
+'''For the time being the list is under review and not finalised
+Unsure if the below line of code would work - check other projects
+from codelists import user/poliveira28/psa-test/437eb36a/
 '''
-
 '''
 Comments on codelists - here is one where SNOMED codes for vaccins are compiled:
 https://github.com/opensafely/oral-anticoagulant-covid-outcome/blob/main/codelists/opensafely-influenza-vaccination.csv
@@ -42,7 +44,7 @@ study = StudyDefinition(
         "incidence": 0.5,
     },
 
-     #Even if working with month of birth index date needed to set up some variables(e.g. IMD)
+    #Even if working with month of birth index date needed to set up some variables (e.g. IMD)
     # define the study index date
     index_date="2019-04-01",
 
@@ -54,8 +56,7 @@ study = StudyDefinition(
             #Do not fully understand the line below or if it will work in all cases
             "int" : {"distribution" : "population_ages"}
     }
-
-    )    
+   
     #If extracting age by category referring to an index data
     #https://github.com/opensafely/HbA1c-levels/blob/master/analysis/study_definition.py
     #Contains some very useful code (starting at "#age") to "envelop" this code to create age categories.
@@ -86,7 +87,7 @@ study = StudyDefinition(
     ),
     '''
     #population=patients.all() [A sometimes useful default option that is not used in this study]
-        population=patients.satisfying(
+    population=patients.satisfying(
         #'has_PSA_test AND (sex = "M")'
         'has PSA_test',
         #Is it clinical events when we would be looking for codes in diagnostic tests.
@@ -95,18 +96,25 @@ study = StudyDefinition(
         has_PSA_test=patients.with_these_clinical_events(
         PSA_codes,
         between=["index_date", "index_date + 27 month"],
-        returning="code"
-        return_expectations={"category": {
-        #Check documentation and complete without having all categories"ratios": {str(1325191000000108): 0.6, str(1325201000000105): 0.4}}}
-        ),
+        returning="date",
+        find_first_match_in_period=True,
+        date_format="YYYY-MM-DD",
+        return_expectations={"rate" : "exponential_increase"},
     ),
     
-        sex=patients.sex(
-            returning_expectations={
-                "category": {"ratios": {"M": 0.49, "F": 0.51}},
-                #"category": {"ratios": {"M": 1, "F": 0}},
-                "incidence": 1, #It should be the case bar some minor amount of missing values
-            }
+    #Question: if (may not be necessary) I wanted to also have the code, guess I need to specify another variable and expectations
+    #But do I need to assign a ratio to each code? There are 18 of them.
+    return_expectations={"category": {
+        #Check documentation and complete without having all categories"ratios": {str(1325191000000108): 0.6, str(1325201000000105): 0.4}}}
+    ),
+    
+    
+    sex=patients.sex(
+        returning_expectations={
+            "category": {"ratios": {"M": 0.49, "F": 0.51}},
+            #"category": {"ratios": {"M": 1, "F": 0}},
+            "incidence": 1, #It should be the case bar some minor amount of missing values
+        }
     ),
     
     #IMD[Note that is rounded to the nearest 100, so quintiles cannot be defined precisely from that data.
@@ -144,7 +152,7 @@ study = StudyDefinition(
         },
     ),  
 
-    '''The below code illustrateds the convenience of putting IMD values in categories from inceptions. Even if you did not
+    '''The below code illustrates the convenience of putting IMD values in categories from inception. Even if you did not
     have to declare return_expectations for each of the 330 categories available if non-declared could be assumed to be zero
     you would then not have a representative distribution of IMD in the population
     imd=patients.address_as_of(
@@ -192,12 +200,13 @@ study = StudyDefinition(
 
 
 
-    '''ethnicity has problems, as OS mentor detailed, but for the time being keep this'''
+    '''ethnicity has problems, as OS mentor detailed, but for the time being keep this, which still needs default expectations
+    Comment out initially
     ethnicity_by_16_grouping=patients.with_ethnicity_from_sus(
     returning="group_16",
     use_most_frequent_code=True,
 )
-
+'''
 
 #############
 #  Measure  #
