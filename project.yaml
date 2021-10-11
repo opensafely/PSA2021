@@ -1,12 +1,16 @@
 version: '3.0'
 
 expectations:
-  population_size: 1000
+  population_size: 5000
 
 actions:
 
   generate_study_population:
-    run: cohortextractor:latest generate_cohort --study-definition study_definition
+    run: cohortextractor:latest generate_cohort --study-definition study_definition 
+    \--index-date-range "2019-04-01 to 2021-06-30 by month" --output-dir=output --output-format csv.gz
     outputs:
       highly_sensitive:
-        cohort: output/input.csv
+        cohort: output/input_*.csv.gz
+        #This has been taken from https://github.com/opensafely/sro-template/blob/master/project.yaml
+        #The output files are not there, but assume it will give the 27 input files witht the suffices being the months
+        #The .gz extension code above is to turn it into a compressed file
