@@ -12,24 +12,25 @@ from cohortextractor import (
     codelist_from_csv,
     #Not sure if the above is needed or at the correct place when you use codelist.py
     patients,
-     '''Other programs/options that could be added
-     combine_codelists,
-    filter_codes_by_category,'''
+     #Other programs/options that could be added
+     #combine_codelists,
+     #filter_codes_by_category,'''
 )
 
 from codelists import *
-'''For the time being the list is under review and not finalised
-Unsure if the below line of code would work - check other projects
-from codelists import user/poliveira28/psa-test/437eb36a/
-'''
-'''
-Comments on codelists - here is one where SNOMED codes for vaccins are compiled:
-https://github.com/opensafely/oral-anticoagulant-covid-outcome/blob/main/codelists/opensafely-influenza-vaccination.csv
-QUESTION: What I am not sure is then how do you set up the study to look up the SNOMED code in which data schemas
-Although not marked as such codes here look like SNOMED codes:
-https://github.com/opensafely/SRO-pulse-oximetry/blob/master/codelists/opensafely-pulse-oximetry.csv
+#    For the time being the list is under review and not finalised
+#    Unsure if the below line of code would work - check other projects
+#    Probably the below need to have "-" instead of "/"
+#    from codelists import user/poliveira28/psa-test/437eb36a
 
-'''
+
+#    Comments on codelists - here is one where SNOMED codes for vaccins are compiled:
+#    https://github.com/opensafely/oral-anticoagulant-covid-outcome/blob/main/codelists/opensafely-influenza-vaccination.csv
+#    QUESTION: What I am not sure is then how do you set up the study to look up the SNOMED code in which data schemas
+#    Although not marked as such codes here look like SNOMED codes:
+#    https://github.com/opensafely/SRO-pulse-oximetry/blob/master/codelists/opensafely-pulse-oximetry.csv
+
+
 
 ######################
 #  Study definition  #
@@ -45,8 +46,9 @@ study = StudyDefinition(
     },
 
     #Even if working with month of birth index date needed to set up some variables (e.g. IMD)
-    # define the study index date
-    index_date="2019-04-01",
+    # We will not be defiing the study index date as
+    #index_date="2019-04-01",
+    #Since the index rate will be made to vary for the beginning of each of the 27 months we will analyse
 
     #Keeping age as of index date
     age=patients.age_as_of(
@@ -56,63 +58,117 @@ study = StudyDefinition(
             #Do not fully understand the line below or if it will work in all cases
             "int" : {"distribution" : "population_ages"}
     }
-   
+
+    #I Confirmed that the below are the age categories required by the sponsor. Adapted from
+    #https://github.com/opensafely/HbA1c-levels/blob/master/analysis/study_definition.py
+    age_group = patients.categorised_as(
+        {
+            "0-59": "age >= 0 AND age < 60",
+            "60-64": "age >= 60 AND age < 65",
+            "65-69": "age >= 65 AND age < 70",
+            "70-74": "age >= 70 AND age < 75",
+            "75-79": "age >= 75 AND age < 80",
+            "80+": "age >= 80",
+            "missing": "DEFAULT",
+        },
+        return_expectations = {
+            "rate": "universal",
+            "category": {
+                "ratios": {
+                    "0-59": 0.16,
+                    "60-64": 0.16,
+                    "65-69": 0.16,
+                    "70-74": 0.16,
+                    "75-79": 0.16,
+                    "80+": 0.16,
+                    "missing": 0.04,                   
+                }
+            },
+        },
+
+
     #If extracting age by category referring to an index data
     #https://github.com/opensafely/HbA1c-levels/blob/master/analysis/study_definition.py
     #Contains some very useful code (starting at "#age") to "envelop" this code to create age categories.
     #If not restricted by disclosure of potentially identifiable information disclosure would rather have month of birth
 
 
-    '''Gender has to be a variable if we want to do checks on the data (how many are missing or are Female)
-    Keeping a possible specification on gender below initially commented out (not a variable)
-    By using that one we may be throwing away cases where there has been gender reassignment together with data that may be wrong.
-    There seems to be a case for analysing the data for gender after extraction rather than limiting it to Men only'''
-    '''Getting to the specification of the population from the list of SNOMED codes for PSA is the trickiest
-        A repository that dealt with diagnostics
-        https://github.com/opensafely/SRO-pulse-oximetry/blob/master/analysis/study_definition.py
-        had the following code snippet
+    #    Gender has to be a variable if we want to do checks on the data (how many are missing or are Female)
+    #    Keeping a possible specification on gender below initially commented out (not a variable)
+    #    By using that one we may be throwing away cases where there has been gender reassignment together with data that may be wrong.
+    #    There seems to be a case for analysing the data for gender after extraction rather than limiting it to Men only
+ 
+    #    Getting to the specification of the population from the list of SNOMED codes for PSA is the trickiest
+    #    A repository that dealt with diagnostics
+    #    https://github.com/opensafely/SRO-pulse-oximetry/blob/master/analysis/study_definition.py
+    #    had the following code snippet
+    #    had_pulse_ox_event_code=patients.with_these_clinical_events(
+    #    pulse_oximetry_codes,
+    #    between=["index_date", "index_date + 1 month"],
+    #    returning="code",
+    #    return_expectations={"category": {
+    #        "ratios": {str(1325191000000108): 0.6, str(1325201000000105): 0.4}}}
 
-        had_pulse_ox_event_code=patients.with_these_clinical_events(
-        pulse_oximetry_codes,
-        between=["index_date", "index_date + 1 month"],
-        returning="code",
-        return_expectations={"category": {
-            "ratios": {str(1325191000000108): 0.6, str(1325201000000105): 0.4}}}
-
-        I think it should be possible to define something like a uniform distribution for the ratios in the codes used
-        in PSA testing, and this would be OK for test data, and the final distribution of codes in the non-mock data
-        would be correct
-        QUESTION: What I have still not understood is if the SNOMED codes are going to be searched in every table where
-        they may appear
-    ),
-    '''
+    #    I think it should be possible to define something like a uniform distribution for the ratios in the codes used
+    #    in PSA testing, and this would be OK for test data, and the final distribution of codes in the non-mock data
+    #    would be correct
+    #    QUESTION: What I have still not understood is if the SNOMED codes are going to be searched in every table where
+    #    they may appear
+    #    ),
+    
     #population=patients.all() [A sometimes useful default option that is not used in this study]
     population=patients.satisfying(
-        #'has_PSA_test AND (sex = "M")'
-        'has PSA_test',
+        has_PSA_test
+        AND (sex = "M")
+        #Rather than just 'has_PSA_test',
         #Is it clinical events when we would be looking for codes in diagnostic tests.
         #Which data schema would it look into? All?
         #A full study where a diagnotic procedure or treatment was used would be instrumental in checking the syntax
-        has_PSA_test=patients.with_these_clinical_events(
-        PSA_codes,
-        between=["index_date", "index_date + 27 month"],
-        returning="date",
-        find_first_match_in_period=True,
-        date_format="YYYY-MM-DD",
-        return_expectations={"rate" : "exponential_increase"},
-    ),
+        #2021/10/11 - moved all of the code allowing defining variables out of the pop definition section
+
     
-    #Question: if (may not be necessary) I wanted to also have the code, guess I need to specify another variable and expectations
-    #But do I need to assign a ratio to each code? There are 18 of them.
-    return_expectations={"category": {
-        #Check documentation and complete without having all categories"ratios": {str(1325191000000108): 0.6, str(1325201000000105): 0.4}}}
-    ),
+
+    #   Question: if (may not be necessary) I wanted to also have the code, guess I need to specify another variable and expectations
+    #   But do I need to assign a ratio to each code? There are 18 of them.
+    #   return_expectations={"category": {
+    #   Check documentation and complete without having all categories"ratios": {str(1325191000000108): 0.6, str(1325201000000105): 0.4}}}
+    #   ),
     
-    
+    has_PSA_test=patients.with_these_clinical_events(
+    PSA_test,
+    between=["index_date", "index_date + 1 month"],
+    #Remember index date will be changed iteratively so that we have data extracted for each month since April 2019
+    returning="date",
+    find_first_match_in_period=True,
+    date_format="YYYY-MM-DD",
+    return_expectations={"rate" : "exponential_increase"},
+
+    # Inspired by https://github.com/opensafely/SRO-pulse-oximetry/blob/master/analysis/study_definition.py
+    # Looks logig that the definition of this variable is left out of the definition of the study population
+    # population=patients.satisfying(
+    #    has_PSA_test_code=patients.with_these_clinical_events(
+    #    PSA_test,
+    has_PSA_test=patients.with_these_clinical_events(
+    PSA_test,
+    between=["index_date", "index_date + 1 month"],
+    returning="code",
+    return_expectations={"category":
+        #Replace ratios by actual codes - 25 total -, and note this is a highly illogical way of proceeding with many codes
+        #Pick just a limited set of codes and make it sum to 1
+        #Redefine if there are problmes with extraction
+        {"ratios": {str(1006591000000100): 0.25,
+        str(166159005): 0.25,
+        str(273968004): 0.25
+        str(395145001): 0.25}
+    }
+ ),
+
+
     sex=patients.sex(
         returning_expectations={
-            "category": {"ratios": {"M": 0.49, "F": 0.51}},
-            #"category": {"ratios": {"M": 1, "F": 0}},
+            #"category": {"ratios": {"M": 0.49, "F": 0.51}},
+            #Do also in population sex_at_birth = Male (will also affect full download) - sex is the variable
+            "category": {"ratios": {"M": 1, "F": 0}},
             "incidence": 1, #It should be the case bar some minor amount of missing values
         }
     ),
@@ -152,19 +208,19 @@ study = StudyDefinition(
         },
     ),  
 
-    '''The below code illustrates the convenience of putting IMD values in categories from inception. Even if you did not
-    have to declare return_expectations for each of the 330 categories available if non-declared could be assumed to be zero
-    you would then not have a representative distribution of IMD in the population
-    imd=patients.address_as_of(
-        "2021-04-01",
-        returning="index_of_multiple_deprivation",
-        round_to_nearest=100,
-        return_expectations={
-            "rate": "universal",
-            "category": {"ratios": {"100": 0.3, "15000": 0.3, "30000": 0.4}},
-        },
-    )
-    '''
+#    The below code illustrates the convenience of putting IMD values in categories from inception. Even if you did not
+#    have to declare return_expectations for each of the 330 categories available if non-declared could be assumed to be zero
+#    you would then not have a representative distribution of IMD in the population
+#    imd=patients.address_as_of(
+#        "2021-04-01",
+#        returning="index_of_multiple_deprivation",
+#        round_to_nearest=100,
+#        return_expectations={
+#            "rate": "universal",
+#            "category": {"ratios": {"100": 0.3, "15000": 0.3, "30000": 0.4}},
+#        },
+#    )
+    
 
     #MSOA may not be worth extracting as it does not seem to allow mapping to CCGs or STPs (LSOAs would, but not in the data)
 
@@ -200,43 +256,42 @@ study = StudyDefinition(
 
 
 
-    '''ethnicity has problems, as OS mentor detailed, but for the time being keep this, which still needs default expectations
-    Comment out initially
-    ethnicity_by_16_grouping=patients.with_ethnicity_from_sus(
-    returning="group_16",
-    use_most_frequent_code=True,
-)
-'''
+#    ethnicity has problems, as OS mentor detailed, but for the time being keep this, which still needs default expectations
+#    Comment out initially
+#    ethnicity_by_16_grouping=patients.with_ethnicity_from_sus(
+#    returning="group_16",
+#    use_most_frequent_code=True,
+#    )
+
 
 #############
 #  Measure  #
 ############# 
 
-'''Section to include if needed for further development
-This section
-https://github.com/opensafely/SRO-pulse-oximetry/blob/master/analysis/study_definition.pyof a repository has
-some very good examples of application of measures at the data extraction stage, as per below.
-Note that extracting measures like simplifies work upstream, but does not allow to develop/apply Python capabilities to
-the extent that "rawer" data would
-
-measures = [
-   
-
-    Measure(
-        id="had_pulse_ox_total",
-        numerator="had_pulse_ox",
-        denominator="population",
-        group_by=None
-    ),
-
-
-
-    Measure(
-        id="had_pulse_ox_by_age_band",
-        numerator="had_pulse_ox",
-        denominator="population",
-        group_by=["age_band"],
-    ),
-
-]
-'''
+#    Section to include if needed for further development
+#    This section
+#    https://github.com/opensafely/SRO-pulse-oximetry/blob/master/analysis/study_definition.pyof a repository has
+#    some very good examples of application of measures at the data extraction stage, as per below.
+#    Note that extracting measures like simplifies work upstream, but does not allow to develop/apply Python capabilities to
+#    the extent that "rawer" data would
+#
+#    measures = [
+#    
+#
+#        Measure(
+#            id="had_pulse_ox_total",
+#            numerator="had_pulse_ox",
+#            denominator="population",
+#            group_by=None
+#        ),
+#
+#
+#
+#       Measure(
+#            id="had_pulse_ox_by_age_band",
+#            numerator="had_pulse_ox",
+#            denominator="population",
+#            group_by=["age_band"],
+#        ),
+#
+#    ]
