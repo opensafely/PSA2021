@@ -1,1 +1,10 @@
-user/poliveira28/psa-test/437eb36a/
+
+user/poliveira28/psa-test/24a1b203
+user/poliveira28/psa-test-long/0b923ece
+
+#Previous version had user/poliveira28/psa-test/437eb36a
+#Could try
+#opensafely/cholesterol-tests/09896c09
+#If my list files
+#Keep in mind that in codelists.txt we do not need the code list version number (it was 437eb36a) 
+#Also do not put / at the end, it will cause program to fail
