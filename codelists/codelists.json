@@ -1,3 +1,16 @@
 {
-  "files": {}
+  "files": {
+    "user-poliveira28-psa-test.csv": {
+      "id": "user/poliveira28/psa-test/24a1b203",
+      "url": "https://codelists.opensafely.org/codelist/user/poliveira28/psa-test/24a1b203/",
+      "downloaded_at": "2021-10-20 00:41:46.133839Z",
+      "sha": "680c6a506c890c47b98e6970c1c05a31dfc71e61"
+    },
+    "user-poliveira28-psa-test-long.csv": {
+      "id": "user/poliveira28/psa-test-long/0b923ece",
+      "url": "https://codelists.opensafely.org/codelist/user/poliveira28/psa-test-long/0b923ece/",
+      "downloaded_at": "2021-10-20 00:41:45.899464Z",
+      "sha": "8df5738322608f6435e90463c0db172704d084ac"
+    }
+  }
 }
