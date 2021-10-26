@@ -30,4 +30,13 @@ actions:
   #   outputs:
   #     moderately_sensitive:
   #       measure_csv: output/PSA_test_total_table.csv
-       
+  
+
+  #New 2021/10/11 - PSA_graphs.py working in ypnb book locally, but gives error whem running model
+  # run_model:
+  #   run: python:analysis/PSA_graphs.py
+  #   needs: [generate_measures]
+  #   outputs:
+  #     moderately_sensitive:
+  #       plots: output/Tests_long_list.png, output/Tests_short_list.png
+  #       #Putting a second line with plots and a different output gives duplicate key error
