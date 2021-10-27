@@ -31,12 +31,13 @@ actions:
   #     moderately_sensitive:
   #       measure_csv: output/PSA_test_total_table.csv
   
-
+  #Code below functioning as of 2021 10 27
   #New 2021/10/11 - PSA_graphs.py working in ypnb book locally, but gives error whem running model
-  # run_model:
-  #   run: python:analysis/PSA_graphs.py
-  #   needs: [generate_measures]
-  #   outputs:
-  #     moderately_sensitive:
-  #       plots: output/Tests_long_list.png, output/Tests_short_list.png
-  #       #Putting a second line with plots and a different output gives duplicate key error
+  run_model:
+    #python:latest is in principle needed. All slashes in paths should be forward slashes
+    run: python:latest python analysis/PSA_graphs.py
+    needs: [generate_measures]
+    outputs:
+      moderately_sensitive:
+        plots: output/*.jpg #Tests_long_list.jpg, output/Tests_short_list.jpg - comma to separate lists may not work
+        #Putting a second line with plots and a different output gives duplicate key error

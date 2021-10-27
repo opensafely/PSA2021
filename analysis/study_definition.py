@@ -384,11 +384,25 @@ study = StudyDefinition(
                     "West Midlands": 0.1,
                     "East of England": 0.1,
                     "London": 0.2,
-                    "South East": 0.2}
+                    "South East": 0.1,
+                    "South West": 0.1,}
         },      
     #COMMENTED OUT this as it looked extraneous        "incidence": 0.8}
     },
     ),
+
+#Error must be occuring as we are not giving the right codes to search, or because there is NaN data - see slack
+    stpcode = patients.registered_practice_as_of(
+        "index_date",
+        returning = "stp_code",
+        return_expectations={
+            "rate": "universal",
+            "category": {
+                "ratios": {"E54000049": 0.5, "E54000012": 0.5}
+                },      
+    },
+    ),
+
 
 
 #    ethnicity has problems, as OS mentor detailed, but for the time being keep this, which still needs default expectations
@@ -427,12 +441,12 @@ measures = [
 
 
     #2021/10/20 - commented out to minimise outputs, though working
-    #    Measure(
-    #         id="PSA_test_by_nuts1_region",
-    #         numerator="had_PSA_test",
-    #         denominator="population",
-    #         group_by=["region"]
-    #     ),
+       Measure(
+            id="PSA_test_by_nuts1_region",
+            numerator="had_PSA_test",
+            denominator="population",
+            group_by=["region"]
+        ),
 
 
     #   Measure(
@@ -466,14 +480,19 @@ measures = [
     #    When tried to run the two measures below got two errors:
     #    1. For all measures the month 2021-02 was absent (even if it was in the source data)
     #    2. A message "Usecols do not match columns, columns expected but not found: ['had_PSA_test_long']"
-    #         Measure(
-    #         id="PSA_test_long_by_nuts1_region",
-    #         numerator="had_PSA_test_long",
-    #         denominator="population",
-    #         group_by=["region"]
-    #     ),
+            Measure(
+            id="PSA_test_long_by_nuts1_region",
+            numerator="had_PSA_test_long",
+            denominator="population",
+            group_by=["region"]
+        ),
 
-
+            Measure(
+            id="PSA_test_long_by_stp_code",
+            numerator="had_PSA_test_long",
+            denominator="population",
+            group_by=["stpcode"]
+        ),
 
     #   Measure(
     #        id="PSA_test_long_by_age_group",
