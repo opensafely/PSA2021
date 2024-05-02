@@ -1,6 +1,6 @@
-# ${GITHUB_PSA2021}
+# PSA2021
 
-[View on OpenSAFELY](https://jobs.opensafely.org/repo/https%253A%252F%252Fgithub.com%252Fopensafely%252F${GITHUB_PSA2021})
+[View on OpenSAFELY](https://jobs.opensafely.org/prostate-cancer-psa-testing/)
 
 Details of the purpose and any published outputs from this project can be found at the link above.
 
